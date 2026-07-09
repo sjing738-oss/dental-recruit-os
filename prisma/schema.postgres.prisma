@@ -1,0 +1,656 @@
+// Dental Talent Acquisition OS - Prisma Schema
+// 对应 PRD v2.0 第9章数据模型，共27张核心表 + 枚举
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== 枚举 ====================
+
+// ==================== 基础与权限 (7表) ====================
+
+model OrganizationUnit {
+  id        String     @id @default(cuid())
+  name      String
+  type      String    @default("CLINIC")
+  parentId  String?
+  parent    OrganizationUnit? @relation("OrgTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  OrganizationUnit[] @relation("OrgTree")
+  region    String?
+  city      String?
+  address   String?
+  status    String     @default("active")
+  clinics   Clinic[]
+  users     User[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Clinic {
+  id        String     @id @default(cuid())
+  orgId     String
+  org       OrganizationUnit @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  name      String
+  region    String?
+  city      String?
+  address   String?
+  status    String     @default("active")
+  jobs      Job[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Role {
+  id            String           @id @default(cuid())
+  code          String           @unique
+  name          String
+  dataScope     String        @default("OWNED")
+  enabled       Boolean          @default(true)
+  users         User[]
+  permissions   RolePermission[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model Permission {
+  id            String           @id @default(cuid())
+  code          String           @unique
+  name          String
+  category      String @default("MENU")
+  description   String?
+  roles         RolePermission[]
+  createdAt     DateTime         @default(now())
+}
+
+model RolePermission {
+  id           String     @id @default(cuid())
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  @@unique([roleId, permissionId])
+}
+
+model User {
+  id            String       @id @default(cuid())
+  name          String
+  email         String       @unique
+  phone         String?
+  passwordHash  String
+  roleId        String
+  role          Role         @relation(fields: [roleId], references: [id])
+  orgId         String?
+  org           OrganizationUnit? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  region        String?
+  clinicId      String?
+  status        String   @default("ACTIVE")
+  lastLoginAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  auditLogs     AuditLog[]
+  ownedJobs     Job[]
+  ownedCandidates Candidate[]
+  stageOwners   CandidateJob[]
+  interviews    InterviewAssignment[]
+  feedbacks     InterviewFeedback[]
+  communications CommunicationRecord[]
+  offerApprovals OfferApproval[]
+  decisionsApproved HiringDecision[]
+  onboardingOwned OnboardingPlan[]
+  onboardingTasks OnboardingTask[]
+  credentialsVerified CredentialCheck[]
+  complianceChecked ComplianceCheck[]
+  @@index([roleId])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  actorId      String?
+  actor        User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action       String
+  objectType   String
+  objectId     String?
+  beforeJson   String?
+  afterJson    String?
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  @@index([actorId])
+  @@index([objectType, objectId])
+  @@index([action])
+}
+
+// ==================== 岗位与候选人核心 (7表) ====================
+
+model Job {
+  id            String     @id @default(cuid())
+  title         String
+  category      String
+  clinicId      String?
+  clinic        Clinic?    @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+  region        String?
+  headcount     Int        @default(1)
+  priority      String     @default("medium")
+  reason        String?
+  status        String  @default("DRAFT")
+  ownerId       String?
+  owner         User?      @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  salaryMin     Int?
+  salaryMax     Int?
+  salaryDesc    String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  profile       JobProfile?
+  candidateJobs CandidateJob[]
+  searchTasks   TalentSearchTask[]
+  @@index([status])
+  @@index([category])
+}
+
+model JobProfile {
+  id             String   @id @default(cuid())
+  jobId          String   @unique
+  job            Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  businessGoal   String?
+  responsibilities String?
+  competencies   String?
+  mustHave       String?
+  niceToHave     String?
+  redFlags       String?
+  interviewPlan  String?
+  confirmedAt    DateTime?
+  aiOutputId     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SalaryBand {
+  id            String   @id @default(cuid())
+  jobCategory   String
+  level         String
+  region        String?
+  fixedMin      Int
+  fixedMax      Int
+  variableDesc  String?
+  approvalRule  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Candidate {
+  id            String     @id @default(cuid())
+  name          String
+  phone         String?
+  email         String?
+  specialty     String?
+  currentOrg    String?
+  city          String?
+  expectedSalary Int?
+  sourceType    String?
+  ownerId       String?
+  owner         User?      @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  privacyLevel  String     @default("L2")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  candidateJobs CandidateJob[]
+  evidence      Evidence[]
+  credentials   CredentialCheck[]
+  communications CommunicationRecord[]
+  tokens        PortalToken[]
+  talentPool    TalentPool?
+  @@index([ownerId])
+}
+
+model CandidateJob {
+  id             String           @id @default(cuid())
+  candidateId    String
+  candidate      Candidate        @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  jobId          String
+  job            Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  status         String  @default("LEAD_DISCOVERED")
+  stageOwnerId   String?
+  stageOwner     User?            @relation(fields: [stageOwnerId], references: [id], onDelete: SetNull)
+  priority       String           @default("medium")
+  enteredAt      DateTime         @default(now())
+  hiredAt        DateTime?
+  rejectedAt     DateTime?
+  rejectReason   String?
+  statusHistory  StatusHistory[]
+  evidence       Evidence[]
+  screeningReports ScreeningReport[]
+  footprintReports PublicFootprintReport[]
+  assessments    DynamicAssessment[]
+  interviews     Interview[]
+  communications CommunicationRecord[]
+  decision       HiringDecision?
+  offerPlan      OfferPlan?
+  onboardingPlan OnboardingPlan?
+  complianceChecks ComplianceCheck[]
+  @@unique([candidateId, jobId])
+  @@index([status])
+}
+
+model StatusHistory {
+  id             String   @id @default(cuid())
+  candidateJobId String
+  candidateJob   CandidateJob @relation(fields: [candidateJobId], references: [id], onDelete: Cascade)
+  fromStatus     String?
+  toStatus       String
+  action         String
+  reason         String?
+  operatorId     String?
+  createdAt      DateTime @default(now())
+  @@index([candidateJobId])
+}
+
+model FileAttachment {
+  id           String   @id @default(cuid())
+  ownerType    String
+  ownerId      String
+  fileName     String
+  filePath     String
+  fileType     String @default("OTHER")
+  mimeType     String?
+  size         Int?
+  uploadedById String?
+  visibility   String   @default("L2")
+  createdAt    DateTime @default(now())
+  @@index([ownerType, ownerId])
+}
+
+// ==================== 人才雷达与证据 (5表) ====================
+
+model TalentSearchTask {
+  id            String   @id @default(cuid())
+  jobId         String?
+  job           Job?     @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  city          String?
+  specialty     String?
+  level         String?
+  orgTypes      String?
+  keywords      String?
+  targetCount   Int      @default(20)
+  status        String   @default("created")
+  ownerId       String?
+  strategyJson  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  results       TalentSearchResult[]
+}
+
+model TalentSearchResult {
+  id                  String   @id @default(cuid())
+  taskId              String
+  task                TalentSearchTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  name                String
+  currentOrg          String?
+  specialty           String?
+  sourceUrl           String?
+  reason              String?
+  credibility         String @default("MEDIUM")
+  contactPriority     String   @default("medium")
+  convertedCandidateId String?
+  createdAt           DateTime @default(now())
+}
+
+model Evidence {
+  id             String             @id @default(cuid())
+  candidateId    String
+  candidate      Candidate          @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  candidateJobId String?
+  candidateJob   CandidateJob?      @relation(fields: [candidateJobId], references: [id], onDelete: SetNull)
+  type           String
+  sourceUrl      String?
+  title          String?
+  summary        String?
+  credibility    String @default("MEDIUM")
+  verifyStatus   String       @default("UNKNOWN")
+  expiresAt      DateTime?
+  createdById    String?
+  createdAt      DateTime           @default(now())
+  @@index([candidateId])
+}
+
+model CredentialCheck {
+  id               String       @id @default(cuid())
+  candidateId      String
+  candidate        Candidate    @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  credentialType   String
+  credentialNoMasked String?
+  registeredScope  String?
+  verifyStatus     String @default("UNKNOWN")
+  verifiedById     String?
+  verifiedBy       User?        @relation(fields: [verifiedById], references: [id], onDelete: SetNull)
+  verifiedAt       DateTime?
+  notes            String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+model TalentPool {
+  id               String     @id @default(cuid())
+  candidateId      String     @unique
+  candidate        Candidate  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  tier             String @default("B")
+  tags             String?
+  maintainOwnerId  String?
+  nextContactAt    DateTime?
+  activeStatus     String     @default("active")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+// ==================== AI 评估与复核 (4表) ====================
+
+model AIOutput {
+  id            String         @id @default(cuid())
+  scene         String
+  targetType    String
+  targetId      String?
+  inputSummary  String?
+  outputJson    String?
+  outputText    String?
+  provider      String         @default("mock")
+  model         String         @default("mock-v1")
+  status        String @default("PENDING_REVIEW")
+  createdById   String?
+  createdAt     DateTime       @default(now())
+  review        AIReview?
+  @@index([scene])
+  @@index([targetType, targetId])
+  @@index([status])
+}
+
+model AIReview {
+  id            String         @id @default(cuid())
+  aiOutputId    String         @unique
+  aiOutput      AIOutput       @relation(fields: [aiOutputId], references: [id], onDelete: Cascade)
+  reviewStatus  String @default("PENDING_REVIEW")
+  reviewerId    String?
+  reviewedAt    DateTime?
+  revisedText   String?
+  comment       String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model ScreeningReport {
+  id             String         @id @default(cuid())
+  candidateJobId String
+  candidateJob   CandidateJob   @relation(fields: [candidateJobId], references: [id], onDelete: Cascade)
+  matchScore     Int?
+  strengths      String?
+  risks          String?
+  missingInfo    String?
+  recommendation String?
+  aiOutputId     String?
+  reviewStatus   String @default("PENDING_REVIEW")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model PublicFootprintReport {
+  id             String         @id @default(cuid())
+  candidateJobId String
+  candidateJob   CandidateJob   @relation(fields: [candidateJobId], references: [id], onDelete: Cascade)
+  verifiedFacts  String?
+  publicClues    String?
+  inferences     String?
+  questions      String?
+  riskLevel      String      @default("GREEN")
+  aiOutputId     String?
+  reviewStatus   String @default("PENDING_REVIEW")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+// ==================== 测评与候选人端 (3表) ====================
+
+model PortalToken {
+  id             String    @id @default(cuid())
+  candidateId    String
+  candidate      Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  token          String    @unique
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  maxAccessCount Int?
+  accessCount    Int       @default(0)
+  createdAt      DateTime  @default(now())
+}
+
+model DynamicAssessment {
+  id             String           @id @default(cuid())
+  candidateJobId String
+  candidateJob   CandidateJob     @relation(fields: [candidateJobId], references: [id], onDelete: Cascade)
+  assessmentType String
+  dimensions     String?
+  questionsJson  String?
+  rubricJson     String?
+  deadline       DateTime?
+  status         String @default("CREATED")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  submission     AssessmentSubmission?
+}
+
+model AssessmentSubmission {
+  id            String   @id @default(cuid())
+  assessmentId  String   @unique
+  assessment    DynamicAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  candidateId   String?
+  answersJson   String?
+  submittedAt   DateTime?
+  aiScore       Int?
+  manualScore   Int?
+  reviewerId    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ==================== 面试协同 (4表) ====================
+
+model Interview {
+  id                String           @id @default(cuid())
+  candidateJobId    String
+  candidateJob      CandidateJob     @relation(fields: [candidateJobId], references: [id], onDelete: Cascade)
+  round             String   @default("HR_INITIAL")
+  scheduledAt       DateTime?
+  location          String?
+  status            String  @default("SCHEDULED")
+  guideAiOutputId   String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  assignments       InterviewAssignment[]
+  feedbacks         InterviewFeedback[]
+}
+
+model InterviewAssignment {
+  id            String          @id @default(cuid())
+  interviewId   String
+  interview     Interview       @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  interviewerId String
+  interviewer   User            @relation(fields: [interviewerId], references: [id], onDelete: Cascade)
+  status        String          @default("assigned")
+  createdAt     DateTime        @default(now())
+}
+
+model InterviewFeedback {
+  id            String          @id @default(cuid())
+  interviewId   String
+  interview     Interview       @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  interviewerId String?
+  interviewer   User?            @relation(fields: [interviewerId], references: [id], onDelete: SetNull)
+  scoresJson    String?
+  conclusion    String?
+  strengths     String?
+  risks         String?
+  questions     String?
+  submittedAt   DateTime?
+  version       Int             @default(1)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model CommunicationRecord {
+  id             String   @id @default(cuid())
+  candidateId    String
+  candidate      Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  candidateJobId String?
+  candidateJob   CandidateJob? @relation(fields: [candidateJobId], references: [id], onDelete: SetNull)
+  channel        String   @default("phone")
+  direction      String   @default("outbound")
+  summary        String?
+  content        String?
+  nextFollowAt   DateTime?
+  createdById    String?
+  created        User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+}
+
+// ==================== 决策/Offer/入职 (8表) ====================
+
+model HiringDecision {
+  id             String       @id @default(cuid())
+  candidateJobId String       @unique
+  candidateJob   CandidateJob @relation(fields: [candidateJobId], references: [id], onDelete: Cascade)
+  decision       String @default("HOLD")
+  summary        String?
+  riskControl    String?
+  probationFocus String?
+  approvedById   String?
+  approvedBy     User?        @relation(fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt     DateTime?
+  aiOutputId     String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model OfferPlan {
+  id             String           @id @default(cuid())
+  candidateJobId String           @unique
+  candidateJob   CandidateJob     @relation(fields: [candidateJobId], references: [id], onDelete: Cascade)
+  planStatus     String  @default("DRAFT")
+  selectedOption String?
+  salaryFixed    Int?
+  variableDesc   String?
+  benefits       String?
+  approvalStatus String @default("DRAFT")
+  sentAt         DateTime?
+  acceptedAt     DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  options        OfferOption[]
+  approvals      OfferApproval[]
+  negotiations   OfferNegotiation[]
+}
+
+model OfferOption {
+  id               String    @id @default(cuid())
+  offerPlanId      String
+  offerPlan        OfferPlan @relation(fields: [offerPlanId], references: [id], onDelete: Cascade)
+  tier             String    @default("standard")
+  salaryFixed      Int?
+  variableDesc     String?
+  benefits         String?
+  negotiationScript String?
+  createdAt        DateTime  @default(now())
+}
+
+model OfferApproval {
+  id           String    @id @default(cuid())
+  offerPlanId  String
+  offerPlan    OfferPlan @relation(fields: [offerPlanId], references: [id], onDelete: Cascade)
+  approverId   String?
+  approver     User?     @relation(fields: [approverId], references: [id], onDelete: SetNull)
+  status       String @default("SUBMITTED")
+  comment      String?
+  approvedAt   DateTime?
+  createdAt    DateTime  @default(now())
+}
+
+model OfferNegotiation {
+  id               String    @id @default(cuid())
+  offerPlanId      String
+  offerPlan        OfferPlan @relation(fields: [offerPlanId], references: [id], onDelete: Cascade)
+  round            Int       @default(1)
+  summary          String?
+  candidateFeedback String?
+  action           String?
+  createdAt        DateTime  @default(now())
+}
+
+model OnboardingPlan {
+  id             String             @id @default(cuid())
+  candidateJobId String             @unique
+  candidateJob   CandidateJob       @relation(fields: [candidateJobId], references: [id], onDelete: Cascade)
+  startDate      DateTime?
+  ownerId        String?
+  owner          User?              @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  planStatus     String @default("PENDING")
+  day30Goal      String?
+  day60Goal      String?
+  day90Goal      String?
+  riskWatch      String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  tasks          OnboardingTask[]
+}
+
+model OnboardingTask {
+  id              String           @id @default(cuid())
+  onboardingPlanId String
+  onboardingPlan  OnboardingPlan   @relation(fields: [onboardingPlanId], references: [id], onDelete: Cascade)
+  title           String
+  ownerId         String?
+  owner           User?            @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  dueDate         DateTime?
+  status          String       @default("PENDING")
+  candidateVisible Boolean         @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model ComplianceCheck {
+  id             String       @id @default(cuid())
+  candidateJobId String
+  candidateJob   CandidateJob @relation(fields: [candidateJobId], references: [id], onDelete: Cascade)
+  checkType      String    @default("CREDENTIAL")
+  status         String @default("UNKNOWN")
+  resultSummary  String?
+  checkedById    String?
+  checkedBy      User?        @relation(fields: [checkedById], references: [id], onDelete: SetNull)
+  checkedAt      DateTime?
+  evidenceId     String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+// ==================== 配置 (2表) ====================
+
+model Template {
+  id           String       @id @default(cuid())
+  templateType String @default("JOB")
+  name         String
+  version      Int          @default(1)
+  contentJson  String?
+  status       String       @default("active")
+  createdById  String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Dictionary {
+  id        String   @id @default(cuid())
+  type      String
+  code      String
+  name      String
+  sort      Int      @default(0)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  @@unique([type, code])
+}

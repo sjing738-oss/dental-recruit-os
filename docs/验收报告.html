@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dental Talent Acquisition OS · 验收报告</title>
+<style>
+:root{--bg:#0a0f1c;--card:#141d30;--line:#243154;--ink:#e6ecf7;--ink2:#93a4c4;--ink3:#5e6f90;--brand:#22d3ee;--green:#34d399;--amber:#fbbf24;--red:#f87171}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI","PingFang SC",sans-serif;background:var(--bg);color:var(--ink);padding:28px 24px 60px;line-height:1.6}
+.w{max-width:1080px;margin:0 auto}
+h1{font-size:24px;font-weight:700;margin-bottom:6px}
+.sub{color:var(--ink3);font-size:12px;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat .s{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+.stat .n{font-size:26px;font-weight:800;color:var(--brand)}
+.stat .l{font-size:11px;color:var(--ink3);margin-top:4px}
+.sec{margin-top:26px}
+.sec h2{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec h2 .b{width:24px;height:24px;border-radius:6px;background:var(--brand);color:#06121a;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.item{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:8px;padding:12px 14px}
+.item .t{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center}
+.item .d{font-size:12px;color:var(--ink2)}
+.ok{color:var(--green);font-size:11px;font-weight:700}
+.bad{border-left-color:var(--red)}
+.bad .ok{color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:12px;background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:#0f1626;color:var(--ink3);font-size:11px;text-transform:uppercase}
+td{color:var(--ink2)}
+td b{color:var(--ink)}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.p-pass{background:rgba(52,211,153,.15);color:var(--green)}
+.note{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.25);border-radius:10px;padding:14px;font-size:12px;color:var(--ink2);margin-top:20px}
+.note b{color:var(--green)}
+</style></head>
+<body><div class="w">
+<h1>Dental Talent Acquisition OS · 系统验收报告</h1>
+<div class="sub">基于 PRD v2.0 第17章验收标准与第20章最终交付定义 · 对照 P0–P10 全阶段交付 · 由 WorkBuddy 生成</div>
+
+<div class="stat">
+<div class="s"><div class="n">P0-P10</div><div class="l">11阶段全部完成</div></div>
+<div class="s"><div class="n">16</div><div class="l">业务模块</div></div>
+<div class="s"><div class="n">27</div><div class="l">数据表</div></div>
+<div class="s"><div class="n">7</div><div class="l">角色权限验证</div></div>
+</div>
+
+<div class="sec"><h2><span class="b">1</span>PRD 第20章 · 最终交付定义（10项全部达成）</h2>
+<div class="grid">
+<div class="item"><div class="t">系统可登录，角色权限与数据范围 <span class="ok">✓ 达成</span></div><div class="d">JWT+RBAC，7角色菜单差异验证通过（recruiter 5项/interviewer 2项/admin 11项）</div></div>
+<div class="item"><div class="t">岗位/候选人/证据/AI/面试/Offer/入职真实入库 <span class="ok">✓ 达成</span></div><div class="d">27张表 Prisma+SQLite，全流程数据持久化可复盘</div></div>
+<div class="item"><div class="t">候选人状态机可运行+业务校验 <span class="ok">✓ 达成</span></div><div class="d">16状态迁移走 service，医生类进决策前校验资质，淘汰必填原因</div></div>
+<div class="item"><div class="t">AI输出统一保存·待复核·可确认/修订/驳回 <span class="ok">✓ 达成</span></div><div class="d">aiService.generate 统一入口，pending_review 默认，四类内容区分</div></div>
+<div class="item"><div class="t">候选人端独立·安全·可提交资料和测评 <span class="ok">✓ 达成</span></div><div class="d">PortalToken 独立访问，字段隔离验证：无内部评分/薪酬底线</div></div>
+<div class="item"><div class="t">Offer审批与入职承接闭环 <span class="ok">✓ 达成</span></div><div class="d">三档Offer→审批→接受→自动生成30/60/90计划+资料清单</div></div>
+<div class="item"><div class="t">数据看板从数据库统计·非假数字 <span class="ok">✓ 达成</span></div><div class="d">analytics 漏斗/类别/AI/Offer 全部 groupBy 实时统计</div></div>
+<div class="item"><div class="t">所有关键动作有 AuditLog <span class="ok">✓ 达成</span></div><div class="d">登录/迁移/AI/审批/候选人端访问均写日志，不可删除</div></div>
+<div class="item"><div class="t">种子数据·演示路径·端到端验收 <span class="ok">✓ 达成</span></div><div class="d">7角色+4岗位+9候选人(状态分布)，全流程已分阶段验证</div></div>
+<div class="item"><div class="t">外部Provider Mock·有Adapter可替换 <span class="ok">✓ 达成</span></div><div class="d">talentSearchProvider/aiService 统一入口，接口字段日志真实保留</div></div>
+</div></div>
+
+<div class="sec"><h2><span class="b">2</span>端到端业务闭环验收（PRD 17.1）</h2>
+<table>
+<tr><th>阶段</th><th>验收动作</th><th>结果</th></tr>
+<tr><td><b>岗位需求</b></td><td>创建正畸/种植医生等4岗位，含薪酬带宽</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>人才雷达</b></td><td>创建搜索任务→Mock返回5条线索→转候选人带入证据</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>候选人360</b></td><td>档案含流程进度轴/资料/证据/状态历史</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>AI初筛</b></td><td>生成初筛报告(matchScore76+四类内容)→复核确认</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>公开足迹</b></td><td>无证据时400提示资料不足（PRD 7.5）</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>动态测评</b></td><td>按岗位生成场景题→候选人端作答201→重复提交400拒绝</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>面试协同</b></td><td>安排2轮面试→面试官提交反馈→360识别共识分歧</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>雇佣决策</b></td><td>AI决策报告→人工确认cautious（医生类缺资质则拦截）</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>Offer</b></td><td>三档(18000/24000/30000)→审批→接受</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>入职承接</b></td><td>接受后自动生成30/60/90计划+5项资料清单</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>数据看板</b></td><td>漏斗/类别/AI复核率/Offer分布实时统计</td><td><span class="pill p-pass">通过</span></td></tr>
+<tr><td><b>审计追溯</b></td><td>登录/迁移/AI/审批/候选人端访问全留痕</td><td><span class="pill p-pass">通过</span></td></tr>
+</table></div>
+
+<div class="sec"><h2><span class="b">3</span>权限与隔离验收（PRD 17.2 / 17.4）</h2>
+<div class="grid">
+<div class="item"><div class="t">角色菜单隔离 <span class="ok">✓</span></div><div class="d">recruiter 5项 / interviewer 2项(仅驾驶舱+面试任务) / admin 11项</div></div>
+<div class="item"><div class="t">数据范围过滤 <span class="ok">✓</span></div><div class="d">ALL/REGION/CLINIC/OWNED/ASSIGNED 五级，候选人/岗位查询按 scope</div></div>
+<div class="item"><div class="t">候选人端字段隔离 <span class="ok">✓</span></div><div class="d">/api/portal 不返回 matchScore/aiScore/salaryMin/salaryMax</div></div>
+<div class="item"><div class="t">面试官任务隔离 <span class="ok">✓</span></div><div class="d">面试官只能看分配给自己的面试任务</div></div>
+<div class="item"><div class="t">Offer审批授权 <span class="ok">✓</span></div><div class="d">仅 OFFER_APPROVE 权限角色可审批（group_hr/admin）</div></div>
+<div class="item"><div class="t">审计日志不可删 <span class="ok">✓</span></div><div class="d">普通页面无删除入口，仅归档</div></div>
+</div></div>
+
+<div class="note">
+<b>验收结论：</b>系统已满足 PRD v2.0「可商用雏形」全部 10 项交付定义，端到端招聘闭环（岗位→人才雷达→候选人→AI评估→测评→面试→决策→Offer→入职）全部跑通并验证。dental_recruit_os 已从 Skill 工程化为可运行、可复盘、可审计、可迭代的招聘业务系统。<br><br>
+<b>运行方式：</b>系统运行于 http://localhost:3000，7个测试账号密码均为 123456，登录页支持一键填充。技术栈：Next.js 14 + Prisma + SQLite + JWT/RBAC。
+</div>
+
+</div></body></html>

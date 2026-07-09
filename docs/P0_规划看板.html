@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dental Talent Acquisition OS · P0 规划看板</title>
+<style>
+  :root{
+    --bg:#0a0f1c; --bg2:#0f1626; --card:#141d30; --card2:#1a2440;
+    --line:#243154; --txt:#e6ecf7; --txt2:#93a4c4; --txt3:#5e6f90;
+    --accent:#22d3ee; --accent2:#38bdf8; --teal:#2dd4bf; --purple:#a78bfa;
+    --green:#34d399; --amber:#fbbf24; --red:#f87171; --blue:#60a5fa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt);line-height:1.55;padding:28px 24px 60px}
+  .wrap{max-width:1240px;margin:0 auto}
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+  .head h1{font-size:26px;font-weight:700;letter-spacing:.5px}
+  .head h1 .en{display:block;font-size:12px;color:var(--accent);font-weight:600;letter-spacing:2px;margin-bottom:6px;text-transform:uppercase}
+  .head .meta{font-size:12px;color:var(--txt3)}
+  .head .meta b{color:var(--txt2);font-weight:600}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(34,211,238,.12);color:var(--accent);border:1px solid rgba(34,211,238,.3)}
+  .sec{margin-top:30px}
+  .sec-t{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .sec-t .n{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06121a;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .sec-t h2{font-size:17px;font-weight:700}
+  .sec-t .sub{font-size:12px;color:var(--txt3);margin-left:6px}
+  .grid{display:grid;gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .card h3{font-size:13px;font-weight:600;margin-bottom:8px;color:var(--txt)}
+  .card .d{font-size:12px;color:var(--txt2)}
+  .philo{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .philo .p{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;border-top:3px solid var(--accent)}
+  .philo .p .k{font-size:12px;font-weight:700;margin-bottom:4px}
+  .philo .p .v{font-size:11px;color:var(--txt2);line-height:1.5}
+  .philo .p:nth-child(2){border-top-color:var(--teal)}
+  .philo .p:nth-child(3){border-top-color:var(--purple)}
+  .philo .p:nth-child(4){border-top-color:var(--green)}
+  .philo .p:nth-child(5){border-top-color:var(--amber)}
+  /* flow */
+  .flow{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:6px}
+  .flow .step{flex:1;min-width:96px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 8px;text-align:center;position:relative}
+  .flow .step .ic{font-size:18px;margin-bottom:4px}
+  .flow .step .t{font-size:11px;font-weight:600}
+  .flow .step .ai{font-size:9px;color:var(--accent);margin-top:3px}
+  .flow .arr{display:flex;align-items:center;color:var(--txt3);padding:0 2px;font-size:14px}
+  /* module table */
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--txt3);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;background:var(--bg2)}
+  td{color:var(--txt2)}
+  td b{color:var(--txt)}
+  tr:hover td{background:rgba(34,211,238,.03)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+  .p-P1{background:rgba(96,165,250,.15);color:var(--blue)}
+  .p-P3{background:rgba(45,212,191,.15);color:var(--teal)}
+  .p-P4{background:rgba(167,139,250,.15);color:var(--purple)}
+  .p-P5{background:rgba(251,191,36,.15);color:var(--amber)}
+  .p-P6{background:rgba(52,211,153,.15);color:var(--green)}
+  .p-P7{background:rgba(56,189,248,.15);color:var(--accent2)}
+  .p-P8{background:rgba(248,113,113,.15);color:var(--red)}
+  .p-P9{background:rgba(167,139,250,.15);color:var(--purple)}
+  .p-P2{background:rgba(96,165,250,.15);color:var(--blue)}
+  /* data model groups */
+  .dm{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .dm .g{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .dm .g .gh{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;display:flex;justify-content:space-between}
+  .dm .g .gh .c{color:var(--txt3);font-weight:500}
+  .dm .g ul{list-style:none}
+  .dm .g li{font-size:11px;color:var(--txt2);padding:2px 0;display:flex;gap:6px}
+  .dm .g li::before{content:"▪";color:var(--txt3)}
+  /* gantt */
+  .gantt{width:100%;border-collapse:collapse;font-size:11px}
+  .gantt th{font-size:10px;color:var(--txt3);text-align:center;padding:6px 4px;width:7%}
+  .gantt td{padding:7px 6px;border-bottom:1px solid var(--line);color:var(--txt2)}
+  .gantt td:first-child{color:var(--txt);font-weight:600;width:18%}
+  .bar{height:18px;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#06121a}
+  .bar.p0{background:linear-gradient(90deg,#64748b,#94a3b8)}
+  .bar.p1{background:linear-gradient(90deg,#22d3ee,#38bdf8)}
+  .bar.p2{background:linear-gradient(90deg,#60a5fa,#3b82f6)}
+  .bar.p3{background:linear-gradient(90deg,#2dd4bf,#14b8a6)}
+  .bar.p4{background:linear-gradient(90deg,#a78bfa,#8b5cf6)}
+  .bar.p5{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+  .bar.p6{background:linear-gradient(90deg,#34d399,#10b981)}
+  .bar.p7{background:linear-gradient(90deg,#38bdf8,#0ea5e9)}
+  .bar.p8{background:linear-gradient(90deg,#f87171,#ef4444)}
+  .bar.p9{background:linear-gradient(90deg,#c084fc,#a855f7)}
+  .bar.p10{background:linear-gradient(90deg,#fb7185,#e11d48)}
+  /* tech stack */
+  .tech{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .tech .t{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center}
+  .tech .t .l{font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+  .tech .t .v{font-size:13px;font-weight:700;color:var(--accent)}
+  .tech .t .r{font-size:10px;color:var(--txt2);margin-top:4px}
+  .note{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:14px;font-size:12px;color:var(--txt2)}
+  .note b{color:var(--amber)}
+  .stat{display:flex;gap:24px;flex-wrap:wrap}
+  .stat .s .num{font-size:28px;font-weight:800;color:var(--accent);line-height:1}
+  .stat .s .lbl{font-size:11px;color:var(--txt3);margin-top:4px}
+  @media(max-width:900px){.philo,.dm,.tech{grid-template-columns:repeat(2,1fr)}.flow{flex-wrap:wrap}.flow .arr{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1><span class="en">Dental Talent Acquisition OS · dental_recruit_os</span>口腔医疗招聘全流程智能工作台 · P0 规划看板</h1>
+      <div class="meta">基于 <b>PRD v2.0 商用级详尽版</b> + <b>dental-recruit-os 技能</b> 生成 · 对应 PRD 15.2 P0 阶段 · 输出理解摘要 / 模块清单 / 数据模型草案 / 实施计划</div>
+    </div>
+    <span class="badge">● P0 规划已就绪</span>
+  </div>
+
+  <!-- 概览指标 -->
+  <div class="stat card" style="display:flex">
+    <div class="s"><div class="num">16</div><div class="lbl">业务模块</div></div>
+    <div class="s"><div class="num">27</div><div class="lbl">数据表</div></div>
+    <div class="s"><div class="num">11</div><div class="lbl">实施阶段 P0-P10</div></div>
+    <div class="s"><div class="num">13</div><div class="lbl">AI 场景</div></div>
+    <div class="s"><div class="num">16</div><div class="lbl">候选人状态</div></div>
+    <div class="s"><div class="num">9</div><div class="lbl">角色权限</div></div>
+  </div>
+
+  <!-- 1 设计哲学 -->
+  <div class="sec">
+    <div class="sec-t"><div class="n">1</div><h2>核心设计哲学</h2><span class="sub">贯穿全阶段的不妥协原则</span></div>
+    <div class="philo">
+      <div class="p"><div class="k">先岗位后找人</div><div class="v">招聘从定义岗位目标与薪酬带宽开始，所有候选人必须关联岗位或人才库。</div></div>
+      <div class="p"><div class="k">证据链优先</div><div class="v">公开资料只是线索，Evidence 须标记来源/可信度/核验状态/过期时间，不直接等同事实。</div></div>
+      <div class="p"><div class="k">AI 辅助人决定</div><div class="v">AIOutput 默认 pending_review，未复核不进决策；AI 不输出录用命令。</div></div>
+      <div class="p"><div class="k">流程闭环</div><div class="v">Offer 接受→自动生成入职承接+90天计划；未录用有价值者入人才库二次激活。</div></div>
+      <div class="p"><div class="k">权限最小化+可审计</div><div class="v">候选人端隔离，高敏薪酬仅授权可见，关键动作写 AuditLog 不可删。</div></div>
+    </div>
+  </div>
+
+  <!-- 2 端到端闭环 -->
+  <div class="sec">
+    <div class="sec-t"><div class="n">2</div><h2>端到端招聘闭环</h2><span class="sub">PRD 4.1 主流程 · 11 阶段</span></div>
+    <div class="card">
+      <div class="flow">
+        <div class="step"><div class="ic">📋</div><div class="t">岗位需求</div><div class="ai">AI画像</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">📡</div><div class="t">人才发现</div><div class="ai">AI策略</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">👤</div><div class="t">候选人入池</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">🔍</div><div class="t">初筛评估</div><div class="ai">AI报告</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">🌐</div><div class="t">公开足迹</div><div class="ai">AI报告</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">📝</div><div class="t">动态测评</div><div class="ai">AI初评</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">👥</div><div class="t">多轮面试</div><div class="ai">AI指南</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">⚖️</div><div class="t">雇佣决策</div><div class="ai">AI报告</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">💼</div><div class="t">Offer</div><div class="ai">AI三档</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">🚀</div><div class="t">入职承接</div></div>
+        <div class="arr">›</div>
+        <div class="step"><div class="ic">♻️</div><div class="t">人才库复盘</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 技术栈 -->
+  <div class="sec">
+    <div class="sec-t"><div class="n">3</div><h2>技术栈选型</h2><span class="sub">单体全栈 · 本地零配置启动 · 可平滑切生产</span></div>
+    <div class="tech">
+      <div class="t"><div class="l">框架</div><div class="v">Next.js 14</div><div class="r">App Router + TS</div></div>
+      <div class="t"><div class="l">UI</div><div class="v">Tailwind + shadcn</div><div class="r">医疗HR SaaS风格</div></div>
+      <div class="t"><div class="l">数据库</div><div class="v">Prisma + SQLite</div><div class="r">可切 PostgreSQL</div></div>
+      <div class="t"><div class="l">认证</div><div class="v">JWT + RBAC</div><div class="r">候选人端PortalToken</div></div>
+      <div class="t"><div class="l">AI</div><div class="v">aiService 统一入口</div><div class="r">Mock 可替换</div></div>
+      <div class="t"><div class="l">图表</div><div class="v">Recharts</div><div class="r">DB统计非假数据</div></div>
+      <div class="t"><div class="l">校验</div><div class="v">Zod</div><div class="r">请求/响应类型安全</div></div>
+      <div class="t"><div class="l">搜索</div><div class="v">Adapter + Mock</div><div class="r">接口/字段真实</div></div>
+      <div class="t"><div class="l">文件</div><div class="v">本地存储抽象</div><div class="r">可接OSS/S3</div></div>
+      <div class="t"><div class="l">审计</div><div class="v">auditService</div><div class="r">中间件统一写日志</div></div>
+    </div>
+  </div>
+
+  <!-- 4 模块清单 -->
+  <div class="sec">
+    <div class="sec-t"><div class="n">4</div><h2>16 业务模块清单</h2><span class="sub">对应 PRD 第 7 章</span></div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table>
+        <thead><tr><th>#</th><th>模块</th><th>核心职责</th><th>阶段</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><b>招聘驾驶舱</b></td><td>漏斗/待办/风险/AI复盘，全局掌握</td><td><span class="pill p-P1">P1占位</span> <span class="pill p-P9">P9</span></td></tr>
+          <tr><td>2</td><td><b>招聘需求与岗位画像中心</b></td><td>岗位CRUD、AI画像/JD/胜任力/筛选标准、薪酬带宽</td><td><span class="pill p-P3">P3</span></td></tr>
+          <tr><td>3</td><td><b>自动人才雷达</b></td><td>搜索任务、Mock结果、证据、转候选人/入人才库</td><td><span class="pill p-P4">P4</span></td></tr>
+          <tr><td>4</td><td><b>候选人 360 档案</b></td><td>生命周期聚合，8个Tab</td><td><span class="pill p-P3">P3</span></td></tr>
+          <tr><td>5</td><td><b>AI 初筛与公开足迹</b></td><td>Screening/Footprint报告、四类内容、复核</td><td><span class="pill p-P5">P5</span></td></tr>
+          <tr><td>6</td><td><b>候选人互动中心</b></td><td>触达/维护/顾虑/挽回，AI四版话术</td><td><span class="pill p-P5">P5</span></td></tr>
+          <tr><td>7</td><td><b>候选人互动端</b></td><td>Token登录、资料/测评/安排/入职，字段隔离</td><td><span class="pill p-P6">P6</span></td></tr>
+          <tr><td>8</td><td><b>动态能力评估中心</b></td><td>按岗位生成测评、量表、AI初评+人工复核</td><td><span class="pill p-P6">P6</span></td></tr>
+          <tr><td>9</td><td><b>面试流程与面试官端</b></td><td>轮次配置、指南、反馈版本留痕、共识分歧</td><td><span class="pill p-P7">P7</span></td></tr>
+          <tr><td>10</td><td><b>雇佣决策中心</b></td><td>汇总资料、AI报告(待复核)、确认、试用期观察</td><td><span class="pill p-P8">P8</span></td></tr>
+          <tr><td>11</td><td><b>Offer 薪酬福利中心</b></td><td>三档方案、带宽校验、审批流、谈判</td><td><span class="pill p-P8">P8</span></td></tr>
+          <tr><td>12</td><td><b>入职承接与90天融入</b></td><td>资料清单、首日安排、30/60/90计划</td><td><span class="pill p-P8">P8</span></td></tr>
+          <tr><td>13</td><td><b>人才库中心</b></td><td>标签分层(A/B/C/D)、维护、二次激活</td><td><span class="pill p-P4">P4</span></td></tr>
+          <tr><td>14</td><td><b>数据看板与复盘</b></td><td>漏斗/周期/转化/质量/AI指标，DB统计下钻</td><td><span class="pill p-P9">P9</span></td></tr>
+          <tr><td>15</td><td><b>合规与审计中心</b></td><td>资质/证据/AI/审批/访问审计</td><td><span class="pill p-P2">P2</span></td></tr>
+          <tr><td>16</td><td><b>管理后台与模板配置</b></td><td>用户/角色/权限/组织/模板/字典/AI场景</td><td><span class="pill p-P2">P2</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 5 数据模型 -->
+  <div class="sec">
+    <div class="sec-t"><div class="n">5</div><h2>数据模型草案</h2><span class="sub">27 张核心表 · 以 Candidate / Job / AuditLog 为三大支柱</span></div>
+    <div class="dm">
+      <div class="g"><div class="gh">基础与权限 <span class="c">7表</span></div><ul><li>OrganizationUnit</li><li>Clinic</li><li>User</li><li>Role</li><li>Permission</li><li>RolePermission</li><li>AuditLog</li></ul></div>
+      <div class="g"><div class="gh">岗位与候选人 <span class="c">7表</span></div><ul><li>Job</li><li>JobProfile</li><li>SalaryBand</li><li>Candidate</li><li>CandidateJob</li><li>StatusHistory</li><li>FileAttachment</li></ul></div>
+      <div class="g"><div class="gh">人才雷达与证据 <span class="c">5表</span></div><ul><li>TalentSearchTask</li><li>TalentSearchResult</li><li>Evidence</li><li>CredentialCheck</li><li>TalentPool</li></ul></div>
+      <div class="g"><div class="gh">AI 评估与复核 <span class="c">4表</span></div><ul><li>AIOutput</li><li>AIReview</li><li>ScreeningReport</li><li>PublicFootprintReport</li></ul></div>
+      <div class="g"><div class="gh">测评与候选人端 <span class="c">3表</span></div><ul><li>PortalToken</li><li>DynamicAssessment</li><li>AssessmentSubmission</li></ul></div>
+      <div class="g"><div class="gh">面试协同 <span class="c">4表</span></div><ul><li>Interview</li><li>InterviewAssignment</li><li>InterviewFeedback</li><li>CommunicationRecord</li></ul></div>
+      <div class="g"><div class="gh">决策/Offer/入职 <span class="c">8表</span></div><ul><li>HiringDecision</li><li>OfferPlan</li><li>OfferOption</li><li>OfferApproval</li><li>OfferNegotiation</li><li>OnboardingPlan</li><li>OnboardingTask</li><li>ComplianceCheck</li></ul></div>
+      <div class="g"><div class="gh">配置 <span class="c">2表</span></div><ul><li>Template</li><li>Dictionary</li></ul></div>
+    </div>
+  </div>
+
+  <!-- 6 实施甘特 -->
+  <div class="sec">
+    <div class="sec-t"><div class="n">6</div><h2>P0–P10 实施路线</h2><span class="sub">PRD 15.2 · 逐阶段生成，每阶段先运行验证再继续</span></div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="gantt">
+        <thead><tr><th>阶段</th><th>目标</th><th colspan="11">进度</th></tr></thead>
+        <tbody>
+          <tr><td>P0</td><td>需求装载·规划</td><td colspan="11"><div class="bar p0" style="width:100%">规划文档+看板</div></td></tr>
+          <tr><td>P1</td><td>项目骨架</td><td colspan="11"><div class="bar p1" style="width:100%">Next.js+Prisma+登录+种子</div></td></tr>
+          <tr><td>P2</td><td>权限与组织</td><td colspan="11"><div class="bar p2" style="width:100%">RBAC+数据范围</div></td></tr>
+          <tr><td>P3</td><td>岗位与候选人核心</td><td colspan="11"><div class="bar p3" style="width:100%">Job/Candidate/360/状态机</div></td></tr>
+          <tr><td>P4</td><td>人才雷达与证据</td><td colspan="11"><div class="bar p4" style="width:100%">搜索+Mock+证据</div></td></tr>
+          <tr><td>P5</td><td>AI评估与复核</td><td colspan="11"><div class="bar p5" style="width:100%">aiService+初筛+足迹</div></td></tr>
+          <tr><td>P6</td><td>测评与候选人端</td><td colspan="11"><div class="bar p6" style="width:100%">PortalToken+测评</div></td></tr>
+          <tr><td>P7</td><td>面试协同</td><td colspan="11"><div class="bar p7" style="width:100%">面试+指南+反馈</div></td></tr>
+          <tr><td>P8</td><td>决策Offer入职</td><td colspan="11"><div class="bar p8" style="width:100%">决策+Offer+90天</div></td></tr>
+          <tr><td>P9</td><td>看板审计设置</td><td colspan="11"><div class="bar p9" style="width:100%">Analytics+Audit+模板</div></td></tr>
+          <tr><td>P10</td><td>测试修复</td><td colspan="11"><div class="bar p10" style="width:100%">E2E验收+修复</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 7 不妥协 -->
+  <div class="sec">
+    <div class="sec-t"><div class="n">7</div><h2>商用不妥协项</h2><span class="sub">贯穿全阶段的硬约束</span></div>
+    <div class="note">
+      <b>① 数据真实入库可复盘</b>，不做纯静态原型；② <b>AI 统一 pending_review</b>，未复核不进决策；③ <b>候选人端字段隔离</b>，不返回内部评分/薪酬底线/面试官私评/AI风险；
+      ④ <b>状态迁移走 service</b> + StatusHistory + AuditLog；⑤ <b>医生类岗位 decision 前必有 credential_check</b>；⑥ <b>看板从 DB 统计</b>，演示种子标记 Seed Demo Data；
+      ⑦ <b>外部 Provider 用 Adapter+Mock</b>，但接口/字段/日志真实保留。
+    </div>
+  </div>
+
+  <div style="margin-top:30px;text-align:center;color:var(--txt3);font-size:11px;border-top:1px solid var(--line);padding-top:18px">
+    Dental Talent Acquisition OS · P0 规划看板 · 由 WorkBuddy 基于 PRD v2.0 + dental-recruit-os 生成 · 下一步进入 P1 项目骨架搭建
+  </div>
+</div>
+</body>
+</html>
