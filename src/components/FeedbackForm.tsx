@@ -15,7 +15,7 @@ const CON_COLOR: Record<string, "green" | "amber" | "blue" | "red"> = {
 };
 
 interface LatestFeedback {
-  conclusion: string;
+  conclusion: string | null;
   strengths: string | null;
   risks: string | null;
   questions: string | null;
