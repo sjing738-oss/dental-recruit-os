@@ -57,7 +57,7 @@ export function FeedbackForm({ interviewId, latest }: { interviewId: string; lat
       {latest && (
         <div className="flex items-center gap-2 text-xs">
           <span className="text-ink-3">已提交反馈</span>
-          <Badge color={CON_COLOR[latest.conclusion] || "gray"}>{CONCLUSIONS.find((c) => c.value === latest.conclusion)?.label || latest.conclusion} · v{latest.version}</Badge>
+          <Badge color={CON_COLOR[latest.conclusion || ""] || "gray"}>{CONCLUSIONS.find((c) => c.value === latest.conclusion)?.label || latest.conclusion || "—"} · v{latest.version}</Badge>
         </div>
       )}
       <div>
